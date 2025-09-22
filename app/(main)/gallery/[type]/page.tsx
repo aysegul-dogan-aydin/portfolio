@@ -16,12 +16,10 @@ export default function Component({ params }: { params: { type: Type } }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Get nodes from Convex based on type
-  const nodes = useQuery(
-    params.type === "recent" 
-      ? api.nodes.getRecentNodes 
-      : api.nodes.getNodesByType, 
-    params.type === "recent" ? {} : { type: params.type }
-  );
+  const recentNodes = useQuery(api.nodes.getRecentNodes);
+  const nodesByType = useQuery(api.nodes.getNodesByType, { type: params.type });
+  
+  const nodes = params.type === "recent" ? recentNodes : nodesByType;
 
   useEffect(() => {
     if (!nodes) return;
