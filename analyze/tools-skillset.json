@@ -1,0 +1,477 @@
+{
+  "skillset_name": "Tools, Modules & Libraries",
+  "description": "Technical tools, frameworks, libraries and modules used in the project",
+  "categories": {
+    "nextjs": {
+      "name": "Next.js Framework",
+      "description": "React framework for production",
+      "skills": {
+        "app_router": {
+          "name": "App Router",
+          "description": "New routing system in Next.js 13+",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        },
+        "static_export": {
+          "name": "Static Site Generation (SSG)",
+          "description": "Pre-rendering pages at build time",
+          "used_in_project": true,
+          "proficiency_level": "advanced"
+        },
+        "turbopack": {
+          "name": "Turbopack",
+          "description": "Fast bundler for development",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "dev_indicators": {
+          "name": "Development Indicators",
+          "description": "Build and compilation indicators",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "trailing_slash": {
+          "name": "Trailing Slash Configuration",
+          "description": "URL trailing slash handling",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "image_optimization": {
+          "name": "Image Optimization",
+          "description": "Next.js Image component and optimization",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        }
+      }
+    },
+    "react": {
+      "name": "React Library",
+      "description": "JavaScript library for building user interfaces",
+      "skills": {
+        "hooks": {
+          "name": "React Hooks",
+          "description": "useState, useEffect, useContext, custom hooks",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        },
+        "context_api": {
+          "name": "Context API",
+          "description": "Global state management with React Context",
+          "used_in_project": true,
+          "proficiency_level": "advanced"
+        },
+        "component_lifecycle": {
+          "name": "Component Lifecycle",
+          "description": "Component mounting, updating, unmounting",
+          "used_in_project": true,
+          "proficiency_level": "advanced"
+        },
+        "event_handling": {
+          "name": "Event Handling",
+          "description": "Handling user interactions and events",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        },
+        "conditional_rendering": {
+          "name": "Conditional Rendering",
+          "description": "Rendering components based on conditions",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        },
+        "props_validation": {
+          "name": "Props Validation",
+          "description": "TypeScript interfaces for prop validation",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        }
+      }
+    },
+    "typescript": {
+      "name": "TypeScript",
+      "description": "Typed superset of JavaScript",
+      "skills": {
+        "type_annotations": {
+          "name": "Type Annotations",
+          "description": "Explicit type declarations",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        },
+        "interfaces": {
+          "name": "Interfaces",
+          "description": "Defining object shapes and contracts",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        },
+        "generics": {
+          "name": "Generics",
+          "description": "Reusable type parameters",
+          "used_in_project": true,
+          "proficiency_level": "advanced"
+        },
+        "union_types": {
+          "name": "Union Types",
+          "description": "Types that can be one of several types",
+          "used_in_project": true,
+          "proficiency_level": "advanced"
+        },
+        "type_guards": {
+          "name": "Type Guards",
+          "description": "Runtime type checking",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "module_resolution": {
+          "name": "Module Resolution",
+          "description": "Import/export and module system",
+          "used_in_project": true,
+          "proficiency_level": "advanced"
+        }
+      }
+    },
+    "tailwind_css": {
+      "name": "Tailwind CSS",
+      "description": "Utility-first CSS framework",
+      "skills": {
+        "utility_classes": {
+          "name": "Utility Classes",
+          "description": "Pre-built CSS utility classes",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        },
+        "responsive_design": {
+          "name": "Responsive Design",
+          "description": "Mobile-first responsive utilities",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        },
+        "dark_mode": {
+          "name": "Dark Mode",
+          "description": "Dark/light theme switching",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "custom_properties": {
+          "name": "CSS Custom Properties",
+          "description": "CSS variables and theming",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "typography_plugin": {
+          "name": "Typography Plugin",
+          "description": "@tailwindcss/typography for rich text",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "postcss_integration": {
+          "name": "PostCSS Integration",
+          "description": "PostCSS configuration and processing",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        }
+      }
+    },
+    "capacitor": {
+      "name": "Capacitor",
+      "description": "Cross-platform native runtime",
+      "skills": {
+        "android_platform": {
+          "name": "Android Platform",
+          "description": "Android app development and building",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "ios_platform": {
+          "name": "iOS Platform",
+          "description": "iOS app development and building",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "status_bar_plugin": {
+          "name": "Status Bar Plugin",
+          "description": "Native status bar customization",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "app_plugin": {
+          "name": "App Plugin",
+          "description": "App lifecycle and native features",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "back_button_handling": {
+          "name": "Back Button Handling",
+          "description": "Android back button integration",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "native_bridge": {
+          "name": "Native Bridge",
+          "description": "JavaScript to native communication",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        }
+      }
+    },
+    "convex": {
+      "name": "Convex",
+      "description": "Real-time backend-as-a-service platform",
+      "skills": {
+        "database_queries": {
+          "name": "Database Queries",
+          "description": "Convex query functions and data fetching",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        },
+        "mutations": {
+          "name": "Mutations",
+          "description": "Convex mutation functions for data modification",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        },
+        "real_time_subscriptions": {
+          "name": "Real-time Subscriptions",
+          "description": "Live data updates and subscriptions",
+          "used_in_project": true,
+          "proficiency_level": "advanced"
+        },
+        "file_storage": {
+          "name": "File Storage",
+          "description": "Convex file storage and management",
+          "used_in_project": true,
+          "proficiency_level": "advanced"
+        },
+        "schema_definition": {
+          "name": "Schema Definition",
+          "description": "Defining database schemas with Convex",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        },
+        "type_generation": {
+          "name": "Type Generation",
+          "description": "Automatic TypeScript types from Convex schema",
+          "used_in_project": true,
+          "proficiency_level": "advanced"
+        }
+      }
+    },
+    "supabase": {
+      "name": "Supabase",
+      "description": "Backend-as-a-Service platform",
+      "skills": {
+        "authentication": {
+          "name": "Authentication",
+          "description": "User authentication and session management",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "database_queries": {
+          "name": "Database Queries",
+          "description": "PostgreSQL queries and operations",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "row_level_security": {
+          "name": "Row Level Security (RLS)",
+          "description": "Database-level security policies",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "real_time_subscriptions": {
+          "name": "Real-time Subscriptions",
+          "description": "Live data updates and subscriptions",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "database_functions": {
+          "name": "Database Functions",
+          "description": "Custom SQL functions and RPC calls",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "type_generation": {
+          "name": "Type Generation",
+          "description": "Automatic TypeScript types from database",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        }
+      }
+    },
+    "ai_ml": {
+      "name": "AI & Machine Learning",
+      "description": "Artificial Intelligence and ML integrations",
+      "skills": {
+        "ollama_api": {
+          "name": "Ollama API",
+          "description": "Local LLM API integration",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "streaming_responses": {
+          "name": "Streaming Responses",
+          "description": "Real-time AI response streaming",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "chat_history": {
+          "name": "Chat History Management",
+          "description": "Conversation memory and context",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "system_prompts": {
+          "name": "System Prompts",
+          "description": "AI behavior customization",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "bot_personas": {
+          "name": "Bot Personas",
+          "description": "Multiple AI character configurations",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "server_sent_events": {
+          "name": "Server-Sent Events (SSE)",
+          "description": "Real-time communication protocol",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        }
+      }
+    },
+    "development_tools": {
+      "name": "Development Tools",
+      "description": "Tools for development workflow",
+      "skills": {
+        "eslint": {
+          "name": "ESLint",
+          "description": "Code linting and quality enforcement",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "pnpm": {
+          "name": "pnpm",
+          "description": "Fast, disk space efficient package manager",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "ts_node": {
+          "name": "ts-node",
+          "description": "TypeScript execution for Node.js",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "hot_reload": {
+          "name": "Hot Reload",
+          "description": "Development server with live reloading",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "build_scripts": {
+          "name": "Build Scripts",
+          "description": "Custom build and deployment scripts",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "environment_config": {
+          "name": "Environment Configuration",
+          "description": "Multi-environment setup and config",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        }
+      }
+    },
+    "ui_libraries": {
+      "name": "UI Libraries & Components",
+      "description": "User interface libraries and components",
+      "skills": {
+        "lucide_react": {
+          "name": "Lucide React",
+          "description": "Icon library for React",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "phosphor_icons": {
+          "name": "Phosphor Icons",
+          "description": "Icon library for React",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "radix_ui": {
+          "name": "Radix UI",
+          "description": "Headless UI components library",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "react_markdown": {
+          "name": "React Markdown",
+          "description": "Markdown rendering in React",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "remark_gfm": {
+          "name": "Remark GFM",
+          "description": "GitHub Flavored Markdown support",
+          "used_in_project": false,
+          "proficiency_level": "beginner"
+        },
+        "google_fonts": {
+          "name": "Google Fonts",
+          "description": "Web font integration (IBM Plex Mono)",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "svg_icons": {
+          "name": "SVG Icons",
+          "description": "Scalable vector graphics for icons",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "custom_components": {
+          "name": "Custom Components",
+          "description": "Reusable React component library",
+          "used_in_project": true,
+          "proficiency_level": "expert"
+        }
+      }
+    },
+    "utility_libraries": {
+      "name": "Utility Libraries",
+      "description": "Utility libraries for common tasks",
+      "skills": {
+        "clsx": {
+          "name": "clsx",
+          "description": "Conditional className utility",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "tailwind_merge": {
+          "name": "Tailwind Merge",
+          "description": "Merge Tailwind CSS classes intelligently",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "class_variance_authority": {
+          "name": "Class Variance Authority",
+          "description": "Component variant management",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        },
+        "tailwindcss_animate": {
+          "name": "Tailwind CSS Animate",
+          "description": "Animation utilities for Tailwind",
+          "used_in_project": true,
+          "proficiency_level": "intermediate"
+        }
+      }
+    }
+  },
+  "summary": {
+    "total_categories": 11,
+    "total_skills": 70,
+    "skills_used_in_project": 35,
+    "expert_level_skills": 12,
+    "advanced_level_skills": 12,
+    "intermediate_level_skills": 23,
+    "beginner_level_skills": 23
+  }
+}
