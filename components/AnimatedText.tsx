@@ -26,13 +26,15 @@ export default function AnimatedText({ className, title, href, image, variant, s
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  if (isSetNodes && nodes) {
-    sessionStorage.setItem("nodesData", JSON.stringify(nodes));
-  }
+  useEffect(() => {
+    if (isSetNodes && nodes) {
+      sessionStorage.setItem("nodesData", JSON.stringify(nodes));
+    }
 
-  if (settings) {
-    sessionStorage.setItem("settingsData", JSON.stringify(settings));
-  }
+    if (settings) {
+      sessionStorage.setItem("settingsData", JSON.stringify(settings));
+    }
+  }, [isSetNodes, nodes, settings]);
 
   const handleInteraction = () => {
     if (handleClick) {
