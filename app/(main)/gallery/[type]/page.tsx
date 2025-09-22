@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { Node, Type } from "@/types";
+import { ConvexNode, ConvexType } from "@/types";
 import { useRouter } from "next/navigation";
 import Exit from "@/components/Exit";
 import Item from "@/components/Item";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
-export default function Component({ params }: { params: { type: Type } }) {
+export default function Component({ params }: { params: { type: ConvexType } }) {
   const router = useRouter();
-  const [filteredNodes, setFilteredNodes] = useState<Node[] | null>(null);
+  const [filteredNodes, setFilteredNodes] = useState<ConvexNode[] | null>(null);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);

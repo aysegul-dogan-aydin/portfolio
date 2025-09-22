@@ -20,11 +20,11 @@ const config: Config = {
       }
     }
   },
-  purge: {
-    options: {
-      safelist: [/^row-span-/]
+  safelist: [
+    {
+      pattern: /^row-span-/,
     }
-  },
+  ],
   plugins: [require("tailwindcss-animate")]
 };
 export default config;
