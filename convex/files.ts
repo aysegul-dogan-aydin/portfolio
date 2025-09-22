@@ -22,6 +22,10 @@ export const storeFileMetadata = mutation({
   handler: async (ctx, args) => {
     const fileUrl = await ctx.storage.getUrl(args.storageId);
     
+    if (!fileUrl) {
+      throw new Error("Failed to get file URL from storage");
+    }
+    
     // Store file metadata
     const fileId = await ctx.db.insert("files", {
       storageId: args.storageId,
