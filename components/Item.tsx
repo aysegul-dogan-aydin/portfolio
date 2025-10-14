@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Type } from "@/types";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useIntersectionObserver } from "@/lib/hooks/useIntersectionObserver";
 
 interface Props {
   className?: string;
@@ -12,16 +13,25 @@ interface Props {
   title?: string;
   description: string;
   isVideo: boolean;
-  id?: string | any; // Accept both string and Convex ID
+  id?: string;
   type?: Type;
+  priority?: boolean;
 }
 
-export default function Component({ className, src, title, description, isVideo, id, type }: Props) {
+export default function Component({ className, src, title, description, isVideo, id, type, priority = false }: Props) {
   const [dimensions, setDimensions] = useState({ width: 320, height: 320 });
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
+  
+  // Use intersection observer for lazy loading
+  const { elementRef, isIntersecting } = useIntersectionObserver({
+    threshold: 0.1,
+    rootMargin: '100px',
+    freezeOnceVisible: true
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -46,27 +56,41 @@ export default function Component({ className, src, title, description, isVideo,
   };
 
   useEffect(() => {
-    if (isVideo && videoRef.current) {
-      videoRef.current.addEventListener("loadedmetadata", () => {
-        const video = videoRef.current;
-        if (video) {
-          handleMediaLoad(video.videoWidth, video.videoHeight);
-        }
-      });
+    if (isVideo && videoRef.current && isIntersecting) {
+      const video = videoRef.current;
+      
+      const handleLoadedMetadata = () => {
+        handleMediaLoad(video.videoWidth, video.videoHeight);
+        setIsLoaded(true);
+      };
+
+      const handleError = () => {
+        console.error("Error loading video:", src);
+        setIsLoaded(true); // Still show the container even if video fails
+      };
+
+      video.addEventListener("loadedmetadata", handleLoadedMetadata);
+      video.addEventListener("error", handleError);
+      
+      // Only load video when it's visible
+      video.load();
+
+      return () => {
+        video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        video.removeEventListener("error", handleError);
+      };
     }
-  }, [isVideo]);
+  }, [isVideo, isIntersecting, src]);
 
   const handleClick = () => {
     if (id) {
-      // Convert Convex ID to string if it's an object
-      const nodeId = typeof id === 'string' ? id : id.toString();
-      router.push(`/gallery/${type}/${nodeId}`);
+      router.push(`/gallery/${type}/${id}`);
     }
   };
 
   const handleMouseEnter = () => {
     setIsHovered(true);
-    if (isVideo && videoRef.current) {
+    if (isVideo && videoRef.current && isIntersecting) {
       videoRef.current.muted = false;
     }
   };
@@ -84,6 +108,7 @@ export default function Component({ className, src, title, description, isVideo,
 
   return (
     <div
+      ref={elementRef}
       className={cn("flex flex-col justify-start items-center cursor-pointer w-full mx-auto", className)}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
@@ -97,12 +122,18 @@ export default function Component({ className, src, title, description, isVideo,
           height: isSmallScreen ? `${dimensions.height}px` : "320px"
         }}
       >
-        {isVideo ? (
+        {!isIntersecting ? (
+          // Placeholder while not visible
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <div className="text-gray-400 text-sm">Loading...</div>
+          </div>
+        ) : isVideo ? (
           <video
             ref={videoRef}
             src={src}
             autoPlay
             loop
+            muted
             playsInline
             controlsList="nodownload"
             onContextMenu={preventDownload}
@@ -118,11 +149,20 @@ export default function Component({ className, src, title, description, isVideo,
             className={cn("object-cover border-2 border-white shadow-xl transition-all duration-300", !isHovered && "grayscale")}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            onLoadingComplete={({ naturalWidth, naturalHeight }) => handleMediaLoad(naturalWidth, naturalHeight)}
+            onLoadingComplete={({ naturalWidth, naturalHeight }) => {
+              handleMediaLoad(naturalWidth, naturalHeight);
+              setIsLoaded(true);
+            }}
             onContextMenu={preventDownload}
             draggable={false}
             style={{ pointerEvents: "none" }}
+            priority={priority} // Use priority prop
           />
+        )}
+        {isIntersecting && !isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+            <div className="text-gray-500 text-sm">Loading...</div>
+          </div>
         )}
       </div>
       <div className={cn("flex flex-col justify-start items-start overflow-hidden w-full", isSmallScreen ? "gap-1" : "gap-4")}>

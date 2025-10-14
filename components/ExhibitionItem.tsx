@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { useIntersectionObserver } from "@/lib/hooks/useIntersectionObserver";
 
 interface Props {
   className?: string;
@@ -16,52 +17,67 @@ export default function ExhibitionItem({ className, src, title, isVideo, onClick
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const mediaRef = useRef<HTMLVideoElement | HTMLImageElement>(null);
-
-  console.log(isVideo);
+  
+  // Use intersection observer for lazy loading
+  const { elementRef, isIntersecting } = useIntersectionObserver({
+    threshold: 0.1,
+    rootMargin: '50px',
+    freezeOnceVisible: true
+  });
 
   useEffect(() => {
-    setIsLoaded(false);
-    setHasError(false);
+    if (isIntersecting) {
+      setIsLoaded(false);
+      setHasError(false);
 
-    if (isVideo && mediaRef.current instanceof HTMLVideoElement) {
-      const videoElement = mediaRef.current;
-      videoElement.muted = true;
+      if (isVideo && mediaRef.current instanceof HTMLVideoElement) {
+        const videoElement = mediaRef.current;
+        videoElement.muted = true;
 
-      const handleLoadedMetadata = () => {
-        setIsLoaded(true);
-      };
+        const handleLoadedMetadata = () => {
+          setIsLoaded(true);
+        };
 
-      const handleError = (e: Event) => {
-        console.error("Error loading video:", e);
-        setHasError(true);
-      };
+        const handleError = (e: Event) => {
+          console.error("Error loading video:", e);
+          setHasError(true);
+          setIsLoaded(true);
+        };
 
-      videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
-      videoElement.addEventListener("error", handleError);
+        videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
+        videoElement.addEventListener("error", handleError);
 
-      // Ensure the video is properly loaded
-      videoElement.load();
+        // Ensure the video is properly loaded
+        videoElement.load();
 
-      return () => {
-        videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
-        videoElement.removeEventListener("error", handleError);
-      };
+        return () => {
+          videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
+          videoElement.removeEventListener("error", handleError);
+        };
+      }
     }
-  }, [isVideo, src]);
+  }, [isVideo, src, isIntersecting]);
 
   const handleImageError = () => {
     console.error("Error loading image");
     setHasError(true);
+    setIsLoaded(true);
   };
 
   return (
     <div
+      ref={elementRef}
       className={cn("flex flex-col items-center justify-center cursor-pointer", "group", className)}
       style={{ width: "300px", height: "300px" }}
       onClick={onClick}
     >
       <div className="relative w-full h-full overflow-hidden">
-        {isVideo ? (
+        {!isIntersecting ? (
+          // Placeholder while not visible
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center border-2 border-white shadow-xl">
+            <div className="text-gray-400">Loading...</div>
+          </div>
+        ) : isVideo ? (
           <video
             ref={mediaRef as React.RefObject<HTMLVideoElement>}
             src={src}
@@ -75,7 +91,10 @@ export default function ExhibitionItem({ className, src, title, isVideo, onClick
               !isLoaded && "invisible"
             )}
             onLoadedData={() => setIsLoaded(true)}
-            onError={() => setHasError(true)}
+            onError={() => {
+              setHasError(true);
+              setIsLoaded(true);
+            }}
           >
             Your browser does not support the video tag.
           </video>
@@ -94,9 +113,10 @@ export default function ExhibitionItem({ className, src, title, isVideo, onClick
             )}
             onLoadingComplete={() => setIsLoaded(true)}
             onError={handleImageError}
+            priority={false} // Don't prioritize these images
           />
         )}
-        {!isLoaded && !hasError && (
+        {isIntersecting && !isLoaded && !hasError && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
             <p className="text-gray-500">Loading...</p>
           </div>

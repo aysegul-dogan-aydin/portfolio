@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { ExternalLink } from "lucide-react";
+import { useIntersectionObserver } from "@/lib/hooks/useIntersectionObserver";
 
 interface Props {
   className?: string;
@@ -19,8 +20,16 @@ interface Props {
 export default function DisplayItem({ className, src, title, description, technical, isVideo, youtubeUrl, onClick }: Props) {
   const [dimensions, setDimensions] = useState({ width: 480, height: 720 });
   const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const mediaRef = useRef<HTMLVideoElement | HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Use intersection observer for lazy loading
+  const { elementRef, isIntersecting } = useIntersectionObserver({
+    threshold: 0.1,
+    rootMargin: '50px',
+    freezeOnceVisible: true
+  });
 
   const calculateDimensions = (naturalWidth: number, naturalHeight: number) => {
     if (!containerRef.current) return;
@@ -58,25 +67,38 @@ export default function DisplayItem({ className, src, title, description, techni
   }, [isVideo]);
 
   useEffect(() => {
-    setIsLoaded(false);
-    if (isVideo && mediaRef.current instanceof HTMLVideoElement) {
-      const videoElement = mediaRef.current;
+    if (isIntersecting) {
+      setIsLoaded(false);
+      setHasError(false);
+      
+      if (isVideo && mediaRef.current instanceof HTMLVideoElement) {
+        const videoElement = mediaRef.current;
 
-      const handleLoadedMetadata = () => {
-        calculateDimensions(videoElement.videoWidth, videoElement.videoHeight);
-      };
+        const handleLoadedMetadata = () => {
+          calculateDimensions(videoElement.videoWidth, videoElement.videoHeight);
+          setIsLoaded(true);
+        };
 
-      videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
-      videoElement.load(); // Force reload
+        const handleError = () => {
+          console.error("Error loading video:", src);
+          setHasError(true);
+          setIsLoaded(true);
+        };
 
-      return () => {
-        videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      };
+        videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
+        videoElement.addEventListener("error", handleError);
+        videoElement.load(); // Force reload
+
+        return () => {
+          videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
+          videoElement.removeEventListener("error", handleError);
+        };
+      }
     }
-  }, [isVideo, src]);
+  }, [isVideo, src, isIntersecting]);
 
   const handleMouseEnter = () => {
-    if (isVideo && mediaRef.current instanceof HTMLVideoElement) {
+    if (isVideo && mediaRef.current instanceof HTMLVideoElement && isIntersecting) {
       mediaRef.current.muted = false;
     }
   };
@@ -89,8 +111,13 @@ export default function DisplayItem({ className, src, title, description, techni
 
   return (
     <div ref={containerRef} className={cn("flex flex-col lg:flex-row items-start lg:items-center justify-center gap-6 lg:gap-6", className)}>
-      <div onClick={onClick} className="cursor-pointer relative mx-auto lg:mx-0" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-        {isVideo ? (
+      <div ref={elementRef} onClick={onClick} className="cursor-pointer relative mx-auto lg:mx-0" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        {!isIntersecting ? (
+          // Placeholder while not visible
+          <div style={{ width: `${dimensions.width}px`, height: `${dimensions.height}px` }} className="bg-gray-200 flex items-center justify-center border-2 border-white shadow-xl">
+            <div className="text-gray-400">Loading...</div>
+          </div>
+        ) : isVideo ? (
           <div style={{ width: `${dimensions.width}px`, height: `${dimensions.height}px` }}>
             <video
               ref={mediaRef as React.RefObject<HTMLVideoElement>}
@@ -102,6 +129,11 @@ export default function DisplayItem({ className, src, title, description, techni
               onLoadedMetadata={(e) => {
                 const video = e.target as HTMLVideoElement;
                 calculateDimensions(video.videoWidth, video.videoHeight);
+                setIsLoaded(true);
+              }}
+              onError={() => {
+                setHasError(true);
+                setIsLoaded(true);
               }}
             >
               Your browser does not support the video tag.
@@ -116,16 +148,32 @@ export default function DisplayItem({ className, src, title, description, techni
               layout="fill"
               objectFit="contain"
               className={cn("border-2 border-white shadow-xl", !isLoaded && "invisible")}
-              onLoadingComplete={({ naturalWidth, naturalHeight }) => calculateDimensions(naturalWidth, naturalHeight)}
+              onLoadingComplete={({ naturalWidth, naturalHeight }) => {
+                calculateDimensions(naturalWidth, naturalHeight);
+                setIsLoaded(true);
+              }}
+              onError={() => {
+                setHasError(true);
+                setIsLoaded(true);
+              }}
+              priority={true} // Prioritize main display item
             />
           </div>
         )}
-        {!isLoaded && (
+        {isIntersecting && !isLoaded && !hasError && (
           <div
             className="absolute inset-0 flex items-center justify-center bg-gray-200"
             style={{ width: `${dimensions.width}px`, height: `${dimensions.height}px` }}
           >
             <p className="text-gray-500">Loading...</p>
+          </div>
+        )}
+        {hasError && (
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-gray-200"
+            style={{ width: `${dimensions.width}px`, height: `${dimensions.height}px` }}
+          >
+            <p className="text-red-500">Error loading media</p>
           </div>
         )}
       </div>

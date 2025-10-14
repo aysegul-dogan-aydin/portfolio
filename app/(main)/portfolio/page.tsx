@@ -1,10 +1,23 @@
-import { convex, api } from "@/lib/convex-server";
+"use client";
+
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import Image from "next/image";
 import staticSettings from "@/data/settings";
 import AnimatedText from "@/components/AnimatedText";
 
-async function Page() {
-  const portfolioImages = await convex.query(api.nodes.getPortfolioImages);
+export default function Page() {
+  const portfolioImages = useQuery(api.nodes.getPortfolioImages);
+  console.log(portfolioImages);
+
+  // Show loading state while data is being fetched
+  if (!portfolioImages) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="text-l font-normal text-gray-700">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-row justify-center items-center bg-background relative">
@@ -26,6 +39,7 @@ async function Page() {
           title="VIDEOGRAPHY"
           href="/gallery/video"
           variant="variant1"
+          isVideo={true}
         />
         <AnimatedText
           image={portfolioImages.audio || ""}
@@ -38,12 +52,14 @@ async function Page() {
           title="PERFORMANCE"
           variant="variant1"
           href="/gallery/performance"
+          isVideo={true}
         />
         <AnimatedText
           image={portfolioImages.installation || ""}
           title="INSTALLATION"
           variant="variant1"
           href="/gallery/installation"
+          isVideo={true}
         />
         <AnimatedText
           image={portfolioImages.drawing || ""}
@@ -81,4 +97,3 @@ async function Page() {
   );
 }
 
-export default Page;

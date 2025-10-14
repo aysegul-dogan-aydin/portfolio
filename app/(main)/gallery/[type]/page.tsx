@@ -66,6 +66,10 @@ export default function Component({ params }: { params: { type: ConvexType } }) 
     }
   };
 
+  // Preload next few items for better performance
+  const preloadCount = 3;
+  const preloadItems = filteredNodes?.slice(0, preloadCount) || [];
+
   if (isLoading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -79,7 +83,7 @@ export default function Component({ params }: { params: { type: ConvexType } }) 
       <div className={`flex ${isSmallScreen ? "flex-col items-center gap-8 py-8 px-4 w-full" : "h-screen items-center"}`}>
         <div className={`flex ${isSmallScreen ? "flex-col w-full" : "flex-row"} gap-[120px] ${isSmallScreen ? "" : "px-[120px]"}`}>
           {filteredNodes &&
-            filteredNodes.map((node) => (
+            filteredNodes.map((node, index) => (
               <div className={`flex ${isSmallScreen ? "w-full" : ""}`} key={node._id}>
                 <Item
                   id={node._id}
@@ -88,6 +92,7 @@ export default function Component({ params }: { params: { type: ConvexType } }) 
                   src={node.image_url || ""}
                   title={node.name || ""}
                   description={node.description || ""}
+                  priority={index < preloadCount} // Prioritize first few items
                 />
               </div>
             ))}

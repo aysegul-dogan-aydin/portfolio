@@ -43,10 +43,23 @@ export const getNodesByType = query({
 export const getRecentNodes = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db
+    const recentNodes = await ctx.db
       .query("nodes")
       .filter((q) => q.eq(q.field("is_recent"), true))
       .collect();
+    
+    // Sort by recent_index, then by recent_work_date as fallback
+    return recentNodes.sort((a, b) => {
+      const aIndex = a.recent_index ?? 999;
+      const bIndex = b.recent_index ?? 999;
+      if (aIndex !== bIndex) {
+        return aIndex - bIndex;
+      }
+      // Fallback to recent_work_date if recent_index is the same
+      const dateA = a.recent_work_date ? new Date(a.recent_work_date) : new Date(0);
+      const dateB = b.recent_work_date ? new Date(b.recent_work_date) : new Date(0);
+      return dateB.getTime() - dateA.getTime();
+    });
   },
 });
 
@@ -227,10 +240,13 @@ export const getPortfolioImages = query({
     const portfolioImages: Record<string, string> = {};
     
     for (const type of types) {
+      // For video-related types, include video content; for others, exclude video content
+      const isVideoType = ["video", "performance", "installation"].includes(type);
+      
       const firstNode = await ctx.db
         .query("nodes")
-        .filter((q) => q.eq(q.field("type"), type))
-        .filter((q) => q.neq(q.field("is_video"), true))
+        .withIndex("by_type_and_index", (q) => q.eq("type", type as any))
+        .filter((q) => isVideoType ? q.eq(q.field("is_video"), true) : q.neq(q.field("is_video"), true))
         .order("asc")
         .first();
       

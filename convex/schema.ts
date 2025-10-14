@@ -9,6 +9,7 @@ export default defineSchema({
     image_url: v.optional(v.string()), // Will store Convex file URL
     index: v.optional(v.number()),
     is_recent: v.optional(v.boolean()),
+    recent_index: v.optional(v.number()), // Order for recent items
     is_video: v.optional(v.boolean()),
     recent_work_date: v.optional(v.string()),
     technical: v.optional(v.string()),
@@ -30,7 +31,9 @@ export default defineSchema({
     created_at: v.string(),
   })
   .index("by_type", ["type"])
+  .index("by_type_and_index", ["type", "index"])
   .index("by_is_recent", ["is_recent"])
+  .index("by_recent_index", ["recent_index"])
   .index("by_supabase_id", ["supabase_id"]),
 
   nodes_extras: defineTable({

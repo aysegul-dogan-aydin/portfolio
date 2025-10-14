@@ -70,6 +70,7 @@ export const adminUpdateNode = mutation({
     image_url: v.optional(v.string()),
     index: v.optional(v.number()),
     is_recent: v.optional(v.boolean()),
+    recent_index: v.optional(v.number()),
     is_video: v.optional(v.boolean()),
     recent_work_date: v.optional(v.string()),
     technical: v.optional(v.string()),
@@ -104,6 +105,7 @@ export const adminCreateNode = mutation({
     image_url: v.optional(v.string()),
     index: v.optional(v.number()),
     is_recent: v.optional(v.boolean()),
+    recent_index: v.optional(v.number()),
     is_video: v.optional(v.boolean()),
     recent_work_date: v.optional(v.string()),
     technical: v.optional(v.string()),
@@ -124,8 +126,23 @@ export const adminCreateNode = mutation({
     youtube_link: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const nodeId = await ctx.db.insert("nodes", {
+    // Clean up the args to handle empty strings
+    const cleanArgs = {
       ...args,
+      // Convert empty string to undefined for type field
+      type: args.type === "" ? undefined : args.type,
+      // Convert empty string to undefined for other optional string fields
+      name: args.name === "" ? undefined : args.name,
+      description: args.description === "" ? undefined : args.description,
+      image_url: args.image_url === "" ? undefined : args.image_url,
+      technical: args.technical === "" ? undefined : args.technical,
+      youtube_link: args.youtube_link === "" ? undefined : args.youtube_link,
+      recent_work_date: args.recent_work_date === "" ? undefined : args.recent_work_date,
+      visible_date: args.visible_date === "" ? undefined : args.visible_date,
+    };
+
+    const nodeId = await ctx.db.insert("nodes", {
+      ...cleanArgs,
       created_at: new Date().toISOString(),
     });
     return nodeId;
@@ -392,6 +409,109 @@ export const adminGetStats = query({
       recentNodes: nodes.filter(n => n.is_recent).length,
       videoNodes: nodes.filter(n => n.is_video).length,
     };
+  },
+});
+
+// Admin: Get all recent items for ordering
+export const adminGetRecentItems = query({
+  args: {},
+  handler: async (ctx) => {
+    const recentItems = await ctx.db
+      .query("nodes")
+      .filter((q) => q.eq(q.field("is_recent"), true))
+      .collect();
+    
+    // Sort by recent_index, then by created_at as fallback
+    return recentItems.sort((a, b) => {
+      const aIndex = a.recent_index ?? 999;
+      const bIndex = b.recent_index ?? 999;
+      if (aIndex !== bIndex) {
+        return aIndex - bIndex;
+      }
+      return (b.created_at || "").localeCompare(a.created_at || "");
+    });
+  },
+});
+
+// Admin: Update recent item order
+export const adminUpdateRecentOrder = mutation({
+  args: {
+    nodeId: v.id("nodes"),
+    newIndex: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.nodeId, {
+      recent_index: args.newIndex,
+    });
+    return { success: true };
+  },
+});
+
+// Admin: Move recent item up
+export const adminMoveRecentUp = mutation({
+  args: {
+    nodeId: v.id("nodes"),
+  },
+  handler: async (ctx, args) => {
+    const recentItems = await ctx.db
+      .query("nodes")
+      .filter((q) => q.eq(q.field("is_recent"), true))
+      .collect();
+    
+    const sortedItems = recentItems.sort((a, b) => {
+      const aIndex = a.recent_index ?? 999;
+      const bIndex = b.recent_index ?? 999;
+      if (aIndex !== bIndex) {
+        return aIndex - bIndex;
+      }
+      return (b.created_at || "").localeCompare(a.created_at || "");
+    });
+    
+    const currentIndex = sortedItems.findIndex(item => item._id === args.nodeId);
+    if (currentIndex <= 0) return { moved: false };
+    
+    const currentItem = sortedItems[currentIndex];
+    const previousItem = sortedItems[currentIndex - 1];
+    
+    // Swap recent_index values
+    await ctx.db.patch(currentItem._id, { recent_index: previousItem.recent_index ?? currentIndex - 1 });
+    await ctx.db.patch(previousItem._id, { recent_index: currentItem.recent_index ?? currentIndex });
+    
+    return { moved: true };
+  },
+});
+
+// Admin: Move recent item down
+export const adminMoveRecentDown = mutation({
+  args: {
+    nodeId: v.id("nodes"),
+  },
+  handler: async (ctx, args) => {
+    const recentItems = await ctx.db
+      .query("nodes")
+      .filter((q) => q.eq(q.field("is_recent"), true))
+      .collect();
+    
+    const sortedItems = recentItems.sort((a, b) => {
+      const aIndex = a.recent_index ?? 999;
+      const bIndex = b.recent_index ?? 999;
+      if (aIndex !== bIndex) {
+        return aIndex - bIndex;
+      }
+      return (b.created_at || "").localeCompare(a.created_at || "");
+    });
+    
+    const currentIndex = sortedItems.findIndex(item => item._id === args.nodeId);
+    if (currentIndex >= sortedItems.length - 1) return { moved: false };
+    
+    const currentItem = sortedItems[currentIndex];
+    const nextItem = sortedItems[currentIndex + 1];
+    
+    // Swap recent_index values
+    await ctx.db.patch(currentItem._id, { recent_index: nextItem.recent_index ?? currentIndex + 1 });
+    await ctx.db.patch(nextItem._id, { recent_index: currentItem.recent_index ?? currentIndex });
+    
+    return { moved: true };
   },
 });
 

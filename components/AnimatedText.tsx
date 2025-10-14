@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Facebook, Instagram, Mail } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-// Types are now handled with 'any' for flexibility
+import { ExtendedNode, Settings } from "@/types";
 import CustomCursor from "./CustomCursor";
 
 interface Props {
@@ -13,28 +13,27 @@ interface Props {
   href?: string;
   variant: "variant1" | "variant2" | "variant3" | "variant4" | "variant5" | "variant6";
   image?: string;
-  settings?: any;
-  nodes?: any[];
+  settings?: Settings;
+  nodes?: ExtendedNode[];
   isSetNodes?: boolean;
   handleClick?: () => void;
+  isVideo?: boolean;
 }
 
-export default function AnimatedText({ className, title, href, image, variant, settings, nodes, isSetNodes = false, handleClick }: Props) {
+export default function AnimatedText({ className, title, href, image, variant, settings, nodes, isSetNodes = false, handleClick, isVideo = false }: Props) {
   const router = useRouter();
   const [isSlided, setIsSlided] = useState(false);
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [cursorPosition, setCursorPosition] = useState({ x: -1000, y: -1000 });
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (isSetNodes && nodes) {
-      sessionStorage.setItem("nodesData", JSON.stringify(nodes));
-    }
+  if (isSetNodes && nodes) {
+    sessionStorage.setItem("nodesData", JSON.stringify(nodes));
+  }
 
-    if (settings) {
-      sessionStorage.setItem("settingsData", JSON.stringify(settings));
-    }
-  }, [isSetNodes, nodes, settings]);
+  if (settings) {
+    sessionStorage.setItem("settingsData", JSON.stringify(settings));
+  }
 
   const handleInteraction = () => {
     if (handleClick) {
@@ -59,7 +58,10 @@ export default function AnimatedText({ className, title, href, image, variant, s
     };
 
     const handleMouseEnter = () => setIsHovered(true);
-    const handleMouseLeave = () => setIsHovered(false);
+    const handleMouseLeave = () => {
+      setIsHovered(false);
+      setCursorPosition({ x: -1000, y: -1000 });
+    };
 
     const container = containerRef.current;
     if (container) {
@@ -166,7 +168,7 @@ export default function AnimatedText({ className, title, href, image, variant, s
           </div>
         </div>
       </div>
-      {image && <CustomCursor isVisible={isHovered} src={image} x={cursorPosition.x} y={cursorPosition.y} />}
+      {image && isHovered && <CustomCursor isVisible={isHovered} src={image} x={cursorPosition.x} y={cursorPosition.y} isVideo={isVideo} />}
     </>
   );
 }

@@ -426,6 +426,7 @@ function NodeForm({
     image_url: node?.image_url || "",
     type: node?.type || "",
     is_recent: node?.is_recent || false,
+    recent_index: node?.recent_index || 0,
     is_video: node?.is_video || false,
     technical: node?.technical || "",
     youtube_link: node?.youtube_link || "",
@@ -515,7 +516,7 @@ function NodeForm({
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     onChange={handleFileUpload}
                     className="hidden"
                   />
@@ -580,6 +581,23 @@ function NodeForm({
                 <span className="ml-2 text-sm text-gray-700">Video</span>
               </label>
             </div>
+
+            {formData.is_recent && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Recent Order</label>
+                <input
+                  type="number"
+                  value={formData.recent_index}
+                  onChange={(e) => setFormData({ ...formData, recent_index: parseInt(e.target.value) || 0 })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                  min="1"
+                  placeholder="Order in recent items (1 = first)"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Lower numbers appear first in the recent items list. Use the "Recent Order" page to manage order easily.
+                </p>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700">YouTube Link</label>
