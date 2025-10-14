@@ -10,22 +10,56 @@ export const dynamic = 'force-dynamic';
 
 export default function AdminRecentPage() {
   const [playingVideo, setPlayingVideo] = useState<any>(null);
+  const [editingIndex, setEditingIndex] = useState<Id<"nodes"> | null>(null);
+  const [tempIndexValue, setTempIndexValue] = useState<number>(0);
 
-  // Get all nodes and filter for recent ones
-  const allNodes = useQuery(api.admin.adminGetAllNodes, { limit: 0 });
-  const recentItems = allNodes?.nodes.filter(node => node.is_recent) || [];
+  // Get recent items ordered by recent_index
+  const recentItems = useQuery(api.admin.adminGetRecentItems);
+  
+  // Mutations
+  const moveUp = useMutation(api.admin.adminMoveRecentItemUp);
+  const moveDown = useMutation(api.admin.adminMoveRecentItemDown);
+  const updateRecentIndex = useMutation(api.admin.adminUpdateRecentIndex);
 
   const handleMoveUp = async (nodeId: Id<"nodes">) => {
-    // For now, just show a message that this feature needs to be implemented
-    alert("Recent ordering feature has been removed. You can manage order by editing the 'Recent Order' field in the node edit form.");
+    try {
+      await moveUp({ nodeId });
+    } catch (error) {
+      console.error("Failed to move item up:", error);
+      alert("Failed to move item up. Please try again.");
+    }
   };
 
   const handleMoveDown = async (nodeId: Id<"nodes">) => {
-    // For now, just show a message that this feature needs to be implemented
-    alert("Recent ordering feature has been removed. You can manage order by editing the 'Recent Order' field in the node edit form.");
+    try {
+      await moveDown({ nodeId });
+    } catch (error) {
+      console.error("Failed to move item down:", error);
+      alert("Failed to move item down. Please try again.");
+    }
   };
 
-  if (!allNodes) {
+  const handleEditIndex = (nodeId: Id<"nodes">, currentIndex: number | undefined) => {
+    setEditingIndex(nodeId);
+    setTempIndexValue(currentIndex ?? 0);
+  };
+
+  const handleSaveIndex = async (nodeId: Id<"nodes">) => {
+    try {
+      await updateRecentIndex({ nodeId, recent_index: tempIndexValue });
+      setEditingIndex(null);
+    } catch (error) {
+      console.error("Failed to update index:", error);
+      alert("Failed to update index. Please try again.");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(null);
+    setTempIndexValue(0);
+  };
+
+  if (!recentItems) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-gray-500">Loading...</div>
@@ -39,7 +73,7 @@ export default function AdminRecentPage() {
         <div className="sm:flex-auto">
           <h1 className="text-2xl font-semibold text-gray-900">Recent Items Order</h1>
           <p className="mt-2 text-sm text-gray-700">
-            Manage the order of items displayed in the "Recent Works" section.
+            Manage the order of items displayed in the "Recent Works" section using the recent_index field.
           </p>
         </div>
       </div>
@@ -51,7 +85,7 @@ export default function AdminRecentPage() {
             Recent Items ({recentItems.length})
           </h2>
           <p className="text-sm text-gray-500">
-            Use the up/down arrows to reorder items in the "Recent Works" section.
+            Use the up/down arrows to reorder items, or click on the index number to edit it directly.
           </p>
         </div>
         
@@ -61,6 +95,9 @@ export default function AdminRecentPage() {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
                   Order
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  Recent Index
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">
                   Item
@@ -83,6 +120,45 @@ export default function AdminRecentPage() {
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                       #{index + 1}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {editingIndex === item._id ? (
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="number"
+                          value={tempIndexValue}
+                          onChange={(e) => setTempIndexValue(parseInt(e.target.value) || 0)}
+                          className="w-16 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          min="0"
+                        />
+                        <button
+                          onClick={() => handleSaveIndex(item._id)}
+                          className="text-green-600 hover:text-green-800"
+                          title="Save"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          className="text-red-600 hover:text-red-800"
+                          title="Cancel"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleEditIndex(item._id, item.recent_index)}
+                        className="text-blue-600 hover:text-blue-800 font-medium"
+                        title="Click to edit"
+                      >
+                        {item.recent_index ?? "unset"}
+                      </button>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">

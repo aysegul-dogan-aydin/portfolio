@@ -70,6 +70,7 @@ export const adminUpdateNode = mutation({
     image_url: v.optional(v.string()),
     index: v.optional(v.number()),
     is_recent: v.optional(v.boolean()),
+    recent_index: v.optional(v.number()),
     is_video: v.optional(v.boolean()),
     recent_work_date: v.optional(v.string()),
     technical: v.optional(v.string()),
@@ -430,5 +431,120 @@ export const adminSaveFile = mutation({
     });
 
     return { fileId, fileUrl };
+  },
+});
+
+// Admin: Get recent items ordered by recent_index
+export const adminGetRecentItems = query({
+  args: {},
+  handler: async (ctx) => {
+    const recentItems = await ctx.db
+      .query("nodes")
+      .filter((q) => q.eq(q.field("is_recent"), true))
+      .collect();
+    
+    // Sort by recent_index (ascending), with null values at the end
+    return recentItems.sort((a, b) => {
+      const aIndex = a.recent_index ?? Number.MAX_SAFE_INTEGER;
+      const bIndex = b.recent_index ?? Number.MAX_SAFE_INTEGER;
+      return aIndex - bIndex;
+    });
+  },
+});
+
+// Admin: Reorder recent items
+export const adminReorderRecentItems = mutation({
+  args: {
+    nodeIds: v.array(v.id("nodes")),
+  },
+  handler: async (ctx, args) => {
+    for (let i = 0; i < args.nodeIds.length; i++) {
+      await ctx.db.patch(args.nodeIds[i], { recent_index: i });
+    }
+    return args.nodeIds;
+  },
+});
+
+// Admin: Move recent item up
+export const adminMoveRecentItemUp = mutation({
+  args: {
+    nodeId: v.id("nodes"),
+  },
+  handler: async (ctx, args) => {
+    const node = await ctx.db.get(args.nodeId);
+    if (!node || !node.is_recent) return null;
+
+    // Get all recent items sorted by recent_index
+    const recentItems = await ctx.db
+      .query("nodes")
+      .filter((q) => q.eq(q.field("is_recent"), true))
+      .collect();
+
+    recentItems.sort((a, b) => {
+      const aIndex = a.recent_index ?? Number.MAX_SAFE_INTEGER;
+      const bIndex = b.recent_index ?? Number.MAX_SAFE_INTEGER;
+      return aIndex - bIndex;
+    });
+
+    const currentIndex = recentItems.findIndex(n => n._id === args.nodeId);
+    if (currentIndex <= 0) return null; // Already at top
+
+    // Swap with previous item
+    const prevItem = recentItems[currentIndex - 1];
+    const currentIndexValue = node.recent_index ?? currentIndex;
+    const prevIndexValue = prevItem.recent_index ?? currentIndex - 1;
+
+    await ctx.db.patch(args.nodeId, { recent_index: prevIndexValue });
+    await ctx.db.patch(prevItem._id, { recent_index: currentIndexValue });
+
+    return { moved: true };
+  },
+});
+
+// Admin: Move recent item down
+export const adminMoveRecentItemDown = mutation({
+  args: {
+    nodeId: v.id("nodes"),
+  },
+  handler: async (ctx, args) => {
+    const node = await ctx.db.get(args.nodeId);
+    if (!node || !node.is_recent) return null;
+
+    // Get all recent items sorted by recent_index
+    const recentItems = await ctx.db
+      .query("nodes")
+      .filter((q) => q.eq(q.field("is_recent"), true))
+      .collect();
+
+    recentItems.sort((a, b) => {
+      const aIndex = a.recent_index ?? Number.MAX_SAFE_INTEGER;
+      const bIndex = b.recent_index ?? Number.MAX_SAFE_INTEGER;
+      return aIndex - bIndex;
+    });
+
+    const currentIndex = recentItems.findIndex(n => n._id === args.nodeId);
+    if (currentIndex >= recentItems.length - 1) return null; // Already at bottom
+
+    // Swap with next item
+    const nextItem = recentItems[currentIndex + 1];
+    const currentIndexValue = node.recent_index ?? currentIndex;
+    const nextIndexValue = nextItem.recent_index ?? currentIndex + 1;
+
+    await ctx.db.patch(args.nodeId, { recent_index: nextIndexValue });
+    await ctx.db.patch(nextItem._id, { recent_index: currentIndexValue });
+
+    return { moved: true };
+  },
+});
+
+// Admin: Update recent index directly
+export const adminUpdateRecentIndex = mutation({
+  args: {
+    nodeId: v.id("nodes"),
+    recent_index: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.nodeId, { recent_index: args.recent_index });
+    return args.nodeId;
   },
 });
