@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Facebook, Instagram, Mail } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { ExtendedNode, Settings } from "@/types";
+import { ExtendedNode, Settings, ConvexExtendedNode, ConvexSettings } from "@/types";
 import CustomCursor from "./CustomCursor";
 
 interface Props {
@@ -13,8 +13,8 @@ interface Props {
   href?: string;
   variant: "variant1" | "variant2" | "variant3" | "variant4" | "variant5" | "variant6";
   image?: string;
-  settings?: Settings;
-  nodes?: ExtendedNode[];
+  settings?: ConvexSettings;
+  nodes?: ConvexExtendedNode[];
   isSetNodes?: boolean;
   handleClick?: () => void;
   isVideo?: boolean;
@@ -27,11 +27,11 @@ export default function AnimatedText({ className, title, href, image, variant, s
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  if (isSetNodes && nodes) {
+  if (isSetNodes && nodes && typeof window !== 'undefined') {
     sessionStorage.setItem("nodesData", JSON.stringify(nodes));
   }
 
-  if (settings) {
+  if (settings && typeof window !== 'undefined') {
     sessionStorage.setItem("settingsData", JSON.stringify(settings));
   }
 

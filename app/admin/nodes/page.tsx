@@ -5,6 +5,9 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+
 export default function AdminNodesPage() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");

@@ -3,6 +3,9 @@
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+
 export default function AdminDashboard() {
   const stats = useQuery(api.admin.adminGetStats);
 

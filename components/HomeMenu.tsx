@@ -1,12 +1,12 @@
 "use client";
 
-import { ExtendedNode, Settings } from "@/types";
+import { ExtendedNode, Settings, ConvexExtendedNode, ConvexSettings } from "@/types";
 import AnimatedText from "./AnimatedText";
 import { useState } from "react";
 
 interface Props {
-  nodes: ExtendedNode[];
-  setttings: Settings;
+  nodes: ConvexExtendedNode[];
+  setttings: ConvexSettings;
 }
 
 function HomeMenu({ nodes, setttings }: Props) {

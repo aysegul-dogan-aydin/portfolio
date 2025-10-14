@@ -3,6 +3,9 @@ import Image from "next/image";
 import staticSettings from "@/data/settings";
 import AnimatedText from "@/components/AnimatedText";
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+
 async function Page() {
   const settings = await convex.query(api.settings.getSettings);
   if (!settings) return null;

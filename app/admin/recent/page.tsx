@@ -5,39 +5,27 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+
 export default function AdminRecentPage() {
   const [playingVideo, setPlayingVideo] = useState<any>(null);
 
-  const recentItems = useQuery(api.admin.adminGetRecentItems);
-  const moveRecentUp = useMutation(api.admin.adminMoveRecentUp);
-  const moveRecentDown = useMutation(api.admin.adminMoveRecentDown);
-  const updateRecentOrder = useMutation(api.admin.adminUpdateRecentOrder);
+  // Get all nodes and filter for recent ones
+  const allNodes = useQuery(api.admin.adminGetAllNodes, { limit: 0 });
+  const recentItems = allNodes?.nodes.filter(node => node.is_recent) || [];
 
   const handleMoveUp = async (nodeId: Id<"nodes">) => {
-    try {
-      await moveRecentUp({ nodeId });
-    } catch (error) {
-      console.error("Error moving item up:", error);
-    }
+    // For now, just show a message that this feature needs to be implemented
+    alert("Recent ordering feature has been removed. You can manage order by editing the 'Recent Order' field in the node edit form.");
   };
 
   const handleMoveDown = async (nodeId: Id<"nodes">) => {
-    try {
-      await moveRecentDown({ nodeId });
-    } catch (error) {
-      console.error("Error moving item down:", error);
-    }
+    // For now, just show a message that this feature needs to be implemented
+    alert("Recent ordering feature has been removed. You can manage order by editing the 'Recent Order' field in the node edit form.");
   };
 
-  const handleSetOrder = async (nodeId: Id<"nodes">, newOrder: number) => {
-    try {
-      await updateRecentOrder({ nodeId, newIndex: newOrder });
-    } catch (error) {
-      console.error("Error updating order:", error);
-    }
-  };
-
-  if (!recentItems) {
+  if (!allNodes) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-gray-500">Loading...</div>
